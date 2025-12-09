@@ -1,0 +1,91 @@
+:root{
+  --bg:#ffffff;
+  --nav:#0b3d91; /* deep blue */
+  --accent:#b22234; /* flag red */
+  --muted:#6b7280;
+  --card:#f7f9fc;
+  --max-width:980px;
+}
+
+html,body,#root{
+  height:100%;
+  margin:0;
+  background:var(--bg);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  color:#0b1230;
+}
+
+.app-shell{
+  max-width:var(--max-width);
+  margin:24px auto;
+  padding:20px;
+  /* ensure the shell always fills the viewport so background stays consistent */
+  min-height:100vh;
+  background:var(--bg);
+}
+
+header.app-header{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  background:linear-gradient(90deg,var(--nav),#234ea6);
+  color:#fff;
+  padding:18px 20px;
+  border-radius:8px;
+}
+
+.brand-title{
+  font-size:1.25rem;
+  font-weight:700;
+}
+
+.flag-stripes{
+  display:inline-block;
+  width:56px;
+  height:28px;
+  border-radius:4px;
+  box-shadow:0 2px 6px rgba(11,13,30,0.12);
+  background: repeating-linear-gradient(
+    0deg,
+    var(--accent) 0 6px,
+    #fff 6px 12px,
+    #3c3b6e 12px 18px
+  );
+}
+
+.controls{ display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+
+label{ font-size:0.95rem; }
+input[type="text"], input[type="number"]{
+  padding:8px 10px;
+  border:1px solid #e6e9ef;
+  border-radius:6px;
+  min-width:140px;
+}
+
+button{
+  background:var(--nav);
+  color:#fff;
+  border:none;
+  padding:8px 12px;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:600;
+}
+button.secondary{ background:#fff; color:var(--nav); border:1px solid #dfe6f3 }
+button:disabled{ opacity:0.6; cursor:not-allowed }
+
+.card{ background:var(--card); padding:18px; border-radius:8px; box-shadow:0 6px 18px rgba(11,13,30,0.06); margin-top:18px }
+
+h1{ margin:0 0 12px 0 }
+h2{ margin-top:0 }
+
+.results-list{ list-style:none; padding:0; margin:0 }
+.results-list li{ padding:12px; border-bottom:1px solid #e9eef6 }
+
+.muted{ color:var(--muted) }
+
+footer.app-footer{ margin-top:18px; text-align:center; color:var(--muted); font-size:0.9rem }
+
+/* responsive */
+@media (max-width:640px){ .controls{ flex-direction:column; align-items:flex-start } }

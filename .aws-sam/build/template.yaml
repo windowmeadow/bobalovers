@@ -1,0 +1,151 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Small Express app deployed with AWS SAM (Lambda + HTTP API)
+Globals:
+  Function:
+    Runtime: nodejs22.x
+    Timeout: 20
+    MemorySize: 512
+    Architectures:
+    - x86_64
+Resources:
+  ExpressHttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      CorsConfiguration:
+        AllowOrigins:
+        - '*'
+        AllowMethods:
+        - GET
+        - POST
+        - PUT
+        - DELETE
+        - OPTIONS
+        AllowHeaders:
+        - '*'
+  ExpressFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ExpressFunction
+      Handler: lambda.handler
+      Description: Express app behind HTTP API
+      Events:
+        Root:
+          Type: HttpApi
+          Properties:
+            ApiId:
+              Ref: ExpressHttpApi
+            Path: /
+            Method: ANY
+        ProxyApi:
+          Type: HttpApi
+          Properties:
+            ApiId:
+              Ref: ExpressHttpApi
+            Path: /{proxy+}
+            Method: ANY
+    Metadata:
+      SamResourceId: ExpressFunction
+  StaticWebsiteBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: Private
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: index.html
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+  StaticWebsiteBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket:
+        Ref: StaticWebsiteBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Sid: AllowCloudFrontServicePrincipalGetObject
+          Effect: Allow
+          Principal:
+            CanonicalUser:
+              Fn::GetAtt:
+              - CloudFrontOAI
+              - S3CanonicalUserId
+          Action: s3:GetObject
+          Resource:
+            Fn::Sub: ${StaticWebsiteBucket.Arn}/*
+  CloudFrontOAI:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: Access identity for static website bucket
+  StaticWebsiteDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Origins:
+        - Id: S3StaticOrigin
+          DomainName:
+            Fn::GetAtt:
+            - StaticWebsiteBucket
+            - DomainName
+          S3OriginConfig:
+            OriginAccessIdentity:
+              Fn::Sub: origin-access-identity/cloudfront/${CloudFrontOAI}
+        DefaultCacheBehavior:
+          TargetOriginId: S3StaticOrigin
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods:
+          - GET
+          - HEAD
+          - OPTIONS
+          - PUT
+          - POST
+          - PATCH
+          - DELETE
+          CachedMethods:
+          - GET
+          - HEAD
+          ForwardedValues:
+            QueryString: true
+            Cookies:
+              Forward: all
+          MinTTL: 0
+          DefaultTTL: 0
+          MaxTTL: 0
+        CustomErrorResponses:
+        - ErrorCode: 403
+          ResponsePagePath: /index.html
+          ResponseCode: 200
+          ErrorCachingMinTTL: 0
+        - ErrorCode: 404
+          ResponsePagePath: /index.html
+          ResponseCode: 200
+          ErrorCachingMinTTL: 0
+        ViewerCertificate:
+          CloudFrontDefaultCertificate: true
+        PriceClass: PriceClass_100
+Outputs:
+  ApiBaseUrl:
+    Description: Base URL for the Express HTTP API
+    Value:
+      Fn::Sub: https://${ExpressHttpApi}.execute-api.${AWS::Region}.amazonaws.com
+  ExpressFunctionArn:
+    Description: ARN of the Lambda function running Express
+    Value:
+      Fn::GetAtt:
+      - ExpressFunction
+      - Arn
+  StaticWebsiteBucketName:
+    Description: Name of the S3 bucket hosting the static website
+    Value:
+      Ref: StaticWebsiteBucket
+  StaticWebsiteURL:
+    Description: S3 website endpoint URL for the static site
+    Value:
+      Fn::GetAtt:
+      - StaticWebsiteBucket
+      - WebsiteURL

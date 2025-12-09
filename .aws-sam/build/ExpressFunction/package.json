@@ -1,0 +1,19 @@
+{
+  "name": "src",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "lambda.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node lambda.js"
+  },
+  "dependencies": {
+    "@vendia/serverless-express": "^4.12.6",
+    "express": "^5.1.0",
+    "path": "^0.12.7",
+    "cors": "^2.8.5"
+  }
+}
