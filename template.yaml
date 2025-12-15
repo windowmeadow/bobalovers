@@ -69,60 +69,55 @@ Resources:
           - Sid: AllowCloudFrontServicePrincipalGetObject
             Effect: Allow
             Principal:
-              CanonicalUser: !GetAtt CloudFrontOAI.S3CanonicalUserId
-            Action: 's3:GetObject'
-            Resource: !Sub '${StaticWebsiteBucket.Arn}/*'
+              Service: cloudfront.amazonaws.com
+            Action: s3:GetObject
+            Resource:
+              !Join
+                - ''
+                - - !GetAtt StaticWebsiteBucket.Arn
+                  - '/*'
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}"
 
-  CloudFrontOAI:
-    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+  CloudFrontOAC:
+    Type: AWS::CloudFront::OriginAccessControl
     Properties:
-      CloudFrontOriginAccessIdentityConfig:
-        Comment: Access identity for static website bucket
+      OriginAccessControlConfig:
+        Name: !Sub "${AWS::StackName}-oac"
+        Description: Access control for S3 origin
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
 
-  StaticWebsiteDistribution:
+  CloudFrontDistribution:
     Type: AWS::CloudFront::Distribution
     Properties:
       DistributionConfig:
         Enabled: true
-        Origins:
-          - Id: S3StaticOrigin
-            DomainName: !GetAtt StaticWebsiteBucket.DomainName
-            S3OriginConfig:
-              OriginAccessIdentity: !Sub "origin-access-identity/cloudfront/${CloudFrontOAI}"
-        DefaultCacheBehavior:
-          TargetOriginId: S3StaticOrigin
-          ViewerProtocolPolicy: redirect-to-https
-          AllowedMethods:
-            - GET
-            - HEAD
-            - OPTIONS
-            - PUT
-            - POST
-            - PATCH
-            - DELETE
-          CachedMethods:
-            - GET
-            - HEAD
-          ForwardedValues:
-            QueryString: true
+        DefaultRootObject: index.html
+        HttpVersion: http2
+        PriceClass: PriceClass_100
 
-            Cookies:
-              Forward: all
-          MinTTL: 0
-          DefaultTTL: 0
-          MaxTTL: 0
-        CustomErrorResponses:
-          - ErrorCode: 403
-            ResponsePagePath: /index.html
-            ResponseCode: 200
-            ErrorCachingMinTTL: 0
-          - ErrorCode: 404
-            ResponsePagePath: /index.html
-            ResponseCode: 200
-            ErrorCachingMinTTL: 0
+        Origins:
+          - Id: S3Origin
+            DomainName: !GetAtt StaticWebsiteBucket.RegionalDomainName
+            S3OriginConfig: {}     # required for S3 origins
+            OriginAccessControlId: !Ref CloudFrontOAC
+
+        DefaultCacheBehavior:
+          TargetOriginId: S3Origin
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods: [GET, HEAD]
+          Compress: true
+          # Managed "CachingDisabled" policy (no caching: all TTLs = 0)
+          # https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-cache-policies.html
+          CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad         
+          OriginRequestPolicyId: 88a5eaf4-2fd4-4709-b370-b4c650ea3fcf  # AWS managed CORS-S3Origin
+
         ViewerCertificate:
           CloudFrontDefaultCertificate: true
-        PriceClass: PriceClass_100
+
 Outputs:
   ApiBaseUrl:
     Description: Base URL for the Express HTTP API
@@ -130,9 +125,9 @@ Outputs:
   ExpressFunctionArn:
     Description: ARN of the Lambda function running Express
     Value: !GetAtt ExpressFunction.Arn
-  StaticWebsiteBucketName:
-    Description: Name of the S3 bucket hosting the static website
+  CloudFrontDomainName:
+    Description: CloudFront distribution domain
+    Value: !GetAtt CloudFrontDistribution.DomainName
+  BucketName:
+    Description: Name of the static site bucket
     Value: !Ref StaticWebsiteBucket
-  StaticWebsiteURL:
-    Description: S3 website endpoint URL for the static site
-    Value: !GetAtt StaticWebsiteBucket.WebsiteURL

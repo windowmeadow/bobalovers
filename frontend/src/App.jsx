@@ -229,6 +229,15 @@ function App() {
                                 <a href={sourceUrl} target="_blank" rel="noreferrer">Source</a>
                               </div>
                             ) : null}
+                            {/* Additional event metadata requested by user */}
+                            {ev?.classification ? <div>Classification: {ev.classification}</div> : null}
+                            {ev?.start_date ? <div>Start: {ev.start_date}</div> : null}
+                            {ev?.end_date ? <div>End: {ev.end_date}</div> : null}
+                            <div>All day: {String(ev?.all_day ?? false)}</div>
+                            {ev?.status ? <div>Status: {ev.status}</div> : null}
+                            {ev?.upstream_id ? <div>Upstream ID: {ev.upstream_id}</div> : null}
+                            <div>Deleted: {String(ev?.deleted ?? false)}</div>
+                            
                           </li>
                         );
                       })}

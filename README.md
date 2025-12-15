@@ -1,15 +1,4 @@
-# Test API — Local development
-
-This repository contains a small frontend (Vite + React) and a backend (Express) used to demo OpenStates API usage (people by location, events by ZIP/state). This README explains how to set it up from scratch, get the required API key, and run both servers locally.
-
-Overview
-- `frontend/` — Vite + React app. Calls the backend proxy (by default) at `/api/*` and provides UI for ZIP -> representatives and events.
-- `backend/` — Express server that proxies requests to OpenStates v3 using a server-side API key so your key is not exposed to the browser.
-
-Prerequisites
-- Node.js 18+ (v22 tested in development here)
-- npm (bundled with Node)
-
+STEPS:
 1) Get an OpenStates API key
 - Sign up / request an API key at https://v3.openstates.org/. Copy the API key — you'll need it for the backend.
 
@@ -61,11 +50,5 @@ The Vite dev server runs (by default) on http://localhost:5173 and is configured
 - Change how many events are shown in the Events UI with the "Show: N events" input.
 - To call OpenStates directly from the frontend (not recommended), set `VITE_USE_SERVER_PROXY=false` in `frontend/.env` and put `VITE_OPENSTATES_API_KEY=your_key` in `frontend/.env`. Restart the dev server after editing `.env`.
 - Keep your real `.env` files out of version control. The repo contains `.env.example` files and `.gitignore` entries in both `frontend/` and `backend/` to help with this.
-
-7) Optional: running with PM2 / systemd / Docker
-- This project is small and intended for local development. For production deployment, run the backend under a process manager (pm2/systemd) and build the frontend (`npm run build`) and serve the `dist/` folder, or deploy using your preferred cloud provider.
-
-8) Contact / next steps
-- If something fails, open an issue or paste the backend logs and browser console output. I can add a debug mode to the backend (`?debug=true`) to return upstream payloads to help troubleshoot.
 
 Enjoy — the app gives a quick local workflow for finding representatives and events by ZIP using OpenStates.
