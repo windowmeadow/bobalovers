@@ -1,12 +1,57 @@
 import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
+import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import "./App.css";
-import { getPeopleByLatLng, getEventsByLatLng, getEventsByZip, getEventsByJurisdiction } from "./openstates";
+import { getPeopleByLatLng, getEventsByJurisdiction } from "./openstates";
 import { geocodeZip } from "./zipLookup";
 import flagSvg from "./images/flag-us.svg";
 
-function App() {
+// Elections Page
+function ElectionsPage() {
+  return (
+    <div className="app-shell">
+      <header className="app-header">
+        <img src={flagSvg} alt="US flag" style={{ height: 36, width: 72 }} />
+        <div className="brand-title">Who's My Candidate?</div>
+        <nav style={{ marginLeft: 'auto', display: 'flex', gap: 16 }}>
+          <Link to="/">Home</Link>
+          <Link to="/elections">Elections</Link>
+          <Link to="/positions">Positions</Link>
+        </nav>
+      </header>
+      <h1>Elections</h1>
+      <p>Stay informed about upcoming and ongoing elections in your area.</p>
+      <p>This page will display election dates, ballot measures, and voting locations to help you participate in the democratic process.</p>
+      <p>Check back soon for detailed election information and important deadlines.</p>
+    </div>
+  );
+}
+
+// Electoral Positions Page
+function ElectoralPositionsPage() {
+  return (
+    <div className="app-shell">
+      <header className="app-header">
+        <img src={flagSvg} alt="US flag" style={{ height: 36, width: 72 }} />
+        <div className="brand-title">Who's My Candidate?</div>
+        <nav style={{ marginLeft: 'auto', display: 'flex', gap: 16 }}>
+          <Link to="/">Home</Link>
+          <Link to="/elections">Elections</Link>
+          <Link to="/positions">Positions</Link>
+        </nav>
+      </header>
+      <h1>Electoral Positions</h1>
+      <ul>
+        <li><strong>President:</strong> Chief executive of the United States, serves a four-year term.</li>
+        <li><strong>Vice President:</strong> Second-highest executive officer, presides over the Senate.</li>
+        <li><strong>Treasurer:</strong> Manages public funds and financial operations at various government levels.</li>
+        <li><strong>Secretary:</strong> Maintains official records and oversees administrative functions.</li>
+      </ul>
+    </div>
+  );
+}
+
+// Home Page Component
+function HomePage() {
   const [lat, setLat] = useState(42.3584);
   const [lon, setLon] = useState(-71.0598);
   const [zip, setZip] = useState("");
@@ -105,6 +150,11 @@ function App() {
         <header className="app-header">
           <img src={flagSvg} alt="US flag" style={{ height: 36, width: 72 }} />
           <div className="brand-title">Who's My Candidate?</div>
+          <nav style={{ marginLeft: 'auto', display: 'flex', gap: 16 }}>
+            <Link to="/">Home</Link>
+            <Link to="/elections">Elections</Link>
+            <Link to="/positions">Positions</Link>
+          </nav>
         </header>
 
         <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 8, flexWrap: 'wrap' }}>
@@ -237,7 +287,7 @@ function App() {
                             {ev?.status ? <div>Status: {ev.status}</div> : null}
                             {ev?.upstream_id ? <div>Upstream ID: {ev.upstream_id}</div> : null}
                             <div>Deleted: {String(ev?.deleted ?? false)}</div>
-                            
+
                           </li>
                         );
                       })}
@@ -248,9 +298,21 @@ function App() {
         </section>
 
 
-        
+
       </div>
     </>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/elections" element={<ElectionsPage />} />
+        <Route path="/positions" element={<ElectoralPositionsPage />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
