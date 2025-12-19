@@ -51,4 +51,3 @@ The Vite dev server runs (by default) on http://localhost:5173 and is configured
 - To call OpenStates directly from the frontend (not recommended), set `VITE_USE_SERVER_PROXY=false` in `frontend/.env` and put `VITE_OPENSTATES_API_KEY=your_key` in `frontend/.env`. Restart the dev server after editing `.env`.
 - Keep your real `.env` files out of version control. The repo contains `.env.example` files and `.gitignore` entries in both `frontend/` and `backend/` to help with this.
 
-Enjoy — the app gives a quick local workflow for finding representatives and events by ZIP using OpenStates.

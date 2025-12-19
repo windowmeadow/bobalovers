@@ -175,6 +175,42 @@ app.get('/api/hello', (req, res) => {
   res.json({ message: 'Hello from API' });
 });
 
+// Proxy endpoint to fetch bills for a jurisdiction with includes
+app.get('/api/bills', async (req, res) => {
+  try {
+    const { jurisdiction, created_since } = req.query;
+    const sort = req.query.sort ?? 'updated_desc';
+    const page = req.query.page ?? 1;
+    const per_page = req.query.per_page ?? 10;
+
+    if (!jurisdiction || !created_since) return res.status(400).json({ error: 'jurisdiction and created_since query params required' });
+
+    const key = process.env.OPENSTATES_API_KEY;
+    if (!key) return res.status(500).json({ error: 'Server missing OPENSTATES_API_KEY' });
+
+    // Include the requested expansions
+    const includeParams = ['other_titles', 'other_identifiers', 'sources', 'votes']
+      .map((v) => `include=${encodeURIComponent(v)}`)
+      .join('&');
+
+    const url = `https://v3.openstates.org/bills?jurisdiction=${encodeURIComponent(jurisdiction)}&created_since=${encodeURIComponent(created_since)}&sort=${encodeURIComponent(sort)}&${includeParams}&page=${encodeURIComponent(page)}&per_page=${encodeURIComponent(per_page)}`;
+
+    const resp = await fetch(url, { headers: { 'X-API-KEY': key } });
+    const txt = await resp.text();
+    try {
+      const json = JSON.parse(txt);
+      // Return the full JSON response (includes results and pagination) so the frontend
+      // can show totals / paging info. Do not strip to items here.
+      return res.status(resp.status).json(json);
+    } catch (e) {
+      return res.status(resp.status).send(txt);
+    }
+  } catch (err) {
+    console.error('OpenStates bills proxy error', err);
+    res.status(500).json({ error: String(err) });
+  }
+});
+
 // Add your other /api/... routes here
 
 /**
