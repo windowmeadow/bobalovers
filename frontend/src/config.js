@@ -4,4 +4,4 @@
 // Set to a full domain for deployed backend, e.g. 'https://api.example.com'.
 
 // set this to the output of the sam deploy for the Lambda function.
-export const API_BASE_URL = 'https://1wlvm8bk0l.execute-api.us-west-2.amazonaws.com';
+export const API_BASE_URL = 'https://1wlvm8bk0l.execute-api.us-west-2.amazonaws.com/api';
