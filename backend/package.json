@@ -11,7 +11,7 @@
     "start": "node lambda.js"
   },
   "dependencies": {
-    "@vendia/serverless-express": "^4.12.6",
+    "@codegenie/serverless-express": "^4.17.1",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
