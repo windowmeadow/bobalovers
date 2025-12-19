@@ -181,14 +181,15 @@ app.get('/api/hello', (req, res) => {
  * 2. Serve static React build
  *    This serves JS/CSS/assets from the build folder.
  */
-const buildPath = 'dist';
+const buildPath = path.resolve(__dirname, '../frontend/dist');
 app.use(express.static(buildPath));
 
 /**
  * 3. Catch-all for SPA routes
- *    Anything not handled above gets index.html for client-side routing.
+ *    ANY route not handled by /api or static files gets index.html for client-side routing.
+ *    This MUST be the LAST route so API routes take precedence.
  */
-app.get('/', (req, res) => {
+app.get(/^(?!\/api).*/, (req, res) => {
   res.sendFile(path.join(buildPath, 'index.html'));
 });
 
