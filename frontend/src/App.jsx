@@ -12,7 +12,7 @@ function ElectionsPage() {
     <div className="app-shell">
       <header className="app-header">
         <img src={flagSvg} alt="US flag" style={{ height: 36, width: 72 }} />
-        <div className="brand-title">Who's My Candidate?</div>
+        <div className="brand-title">Ballot Snapshot</div>
         <nav style={{ marginLeft: 'auto', display: 'flex', gap: 16 }}>
           <Link to="/">Home</Link>
           <Link to="/elections">Elections</Link>
@@ -455,6 +455,13 @@ function HomePage() {
               )}
             </div>
           )}
+          {/* Summary showing how many are displayed vs total available */}
+          {Array.isArray(events) ? (
+            <div style={{ marginTop: 8, fontSize: 13, color: '#333' }}>
+              {`Showing ${Math.min(eventsLimit, (availableEventsCount ?? events.length))} of ${availableEventsCount ?? events.length} events`}
+            </div>
+          ) : null}
+
           {/* Bills UI */}
           <hr />
           <section style={{ marginTop: 12 }}>
