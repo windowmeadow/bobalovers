@@ -119,9 +119,15 @@ export async function getEventsByJurisdiction(jurisdiction, limit = 5) {
 }
 
 export async function getBillsByJurisdiction(jurisdiction, created_since, sort = 'updated_desc', per_page = 10) {
-  const useProxy = import.meta.env.VITE_USE_SERVER_PROXY === 'true';
+  // Decide whether to call a server-side proxy (preferred for deployed apps)
+  // If API_BASE_URL is set at build time we should use it. In dev the Vite proxy
+  // can be enabled via VITE_USE_SERVER_PROXY=true which makes `/api/...` work.
+  const useProxy = Boolean(useBase) || import.meta.env.VITE_USE_SERVER_PROXY === 'true';
   if (useProxy) {
-    const url = `/api/bills?jurisdiction=${encodeURIComponent(jurisdiction)}&created_since=${encodeURIComponent(created_since)}&sort=${encodeURIComponent(sort)}&per_page=${encodeURIComponent(per_page)}`;
+    // If useBase (API_BASE_URL) is provided it includes the /api prefix (see config),
+    // otherwise call the relative `/api` path which Vite will proxy in dev.
+    const base = useBase ? API_BASE_URL : '';
+    const url = `${base}/bills?jurisdiction=${encodeURIComponent(jurisdiction)}&created_since=${encodeURIComponent(created_since)}&sort=${encodeURIComponent(sort)}&per_page=${encodeURIComponent(per_page)}`;
     const res = await fetch(url);
     if (!res.ok) {
       const txt = await res.text();
