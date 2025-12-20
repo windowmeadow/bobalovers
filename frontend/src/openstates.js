@@ -1,10 +1,11 @@
-// Helper for calling OpenStates /people.geo
-// Uses Vite env var VITE_OPENSTATES_API_KEY in frontend/.env
+// Helper for calling OpenStates /people.geo and related endpoints.
+// This module supports using a server-side proxy (configured via `frontend/.env` and VITE_USE_SERVER_PROXY)
+// or calling the OpenStates v3 API directly from the browser if you set VITE_OPENSTATES_API_KEY.
 import { API_BASE_URL } from './config';
 
 const useBase = Boolean(API_BASE_URL);
 
-async function doFetch(url, options, errorLabel) {
+async function doFetch(url, options = {}, errorLabel = 'OpenStates API error') {
   const res = await fetch(url, options);
   if (!res.ok) {
     const txt = await res.text();
@@ -115,5 +116,35 @@ export async function getEventsByJurisdiction(jurisdiction, limit = 5) {
   const data = await doFetch(url, options, useBase ? 'Proxy error' : 'OpenStates API error');
   const items = data.results ?? data ?? [];
   return Array.isArray(items) ? items.slice(0, limit) : items;
+}
+
+export async function getBillsByJurisdiction(jurisdiction, created_since, sort = 'updated_desc', per_page = 10) {
+  const useProxy = import.meta.env.VITE_USE_SERVER_PROXY === 'true';
+  if (useProxy) {
+    const url = `/api/bills?jurisdiction=${encodeURIComponent(jurisdiction)}&created_since=${encodeURIComponent(created_since)}&sort=${encodeURIComponent(sort)}&per_page=${encodeURIComponent(per_page)}`;
+    const res = await fetch(url);
+    if (!res.ok) {
+      const txt = await res.text();
+      throw new Error(`Proxy error ${res.status}: ${txt}`);
+    }
+    const data = await res.json();
+    // Return the full response (object or array). The frontend will handle results vs totals.
+    return data;
+  }
+
+  const key = import.meta.env.VITE_OPENSTATES_API_KEY;
+  if (!key) throw new Error('Missing OpenStates API key for direct call');
+  const includeParams = ['other_titles', 'other_identifiers', 'sources', 'votes']
+    .map((i) => `include=${encodeURIComponent(i)}`)
+    .join('&');
+  const url = `https://v3.openstates.org/bills?jurisdiction=${encodeURIComponent(jurisdiction)}&created_since=${encodeURIComponent(created_since)}&sort=${encodeURIComponent(sort)}&${includeParams}&page=1&per_page=${encodeURIComponent(per_page)}`;
+  const resp = await fetch(url, { headers: { 'X-API-KEY': key } });
+  if (!resp.ok) {
+    const txt = await resp.text();
+    throw new Error(`OpenStates API error ${resp.status}: ${txt}`);
+  }
+  const d = await resp.json();
+  const items = d.results ?? d ?? [];
+  return Array.isArray(items) ? items.slice(0, per_page) : items;
 }
 
