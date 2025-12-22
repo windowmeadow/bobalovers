@@ -1,0 +1,164 @@
+/* Elections page - zoom adaptive, full viewport width */
+
+/* Ensure full width coverage */
+html, body {
+  width: 100% !important;
+  min-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+  overflow-x: hidden !important;
+}
+
+body {
+  display: block !important;
+}
+
+#root {
+  width: 100% !important;
+  min-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.elections-shell {
+  min-height: 100vh;
+  width: 100vw;
+  background: #f5f5f5;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Header bar - white background, centered nav */
+.elections-header {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  background: #ffffff;
+  padding: 2vh 4vw;
+  box-shadow: 0 0.2vh 0.4vh rgba(0,0,0,0.08);
+  border-bottom: 0.2vh solid #000;
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.brand-left {
+  font-family: 'We The People', serif;
+  font-size: 3.6vw;
+  color: #1e3a8a;
+}
+
+.header-nav {
+  display: flex;
+  gap: 3vw;
+  justify-content: center;
+}
+
+.header-nav a {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 1.6vw;
+  color: #1e3a8a;
+  text-decoration: none;
+}
+.header-nav a:hover { text-decoration: underline; }
+
+/* Main content */
+.elections-main {
+  width: 100%;
+  max-width: 100vw;
+  margin: 0 auto;
+  padding: 6vh 8vw 8vh 8vw;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.elections-page-title {
+  font-family: 'Raleway', sans-serif;
+  font-size: 6vw;
+  font-weight: 400;
+  color: #333;
+  margin: 0 0 4vh 0;
+  text-align: center;
+}
+
+.elections-content {
+  max-width: 90vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3vh;
+}
+
+.elections-text {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 2vw;
+  font-style: italic;
+  color: #333;
+  line-height: 1.6;
+  text-align: center;
+  margin: 0;
+  max-width: 85vw;
+}
+
+/* Ballot icon at bottom */
+.ballot-icon-container {
+  margin-top: 6vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.ballot-icon {
+  width: 12vw;
+  height: auto;
+  max-width: 180px;
+  object-fit: contain;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .elections-page-title { font-size: 7vw; }
+  .elections-text { font-size: 2.5vw; max-width: 90vw; }
+  .ballot-icon { width: 15vw; }
+}
+
+@media (max-width: 900px) {
+  .elections-main {
+    padding: 5vh 5vw;
+  }
+  .elections-page-title { font-size: 8vw; }
+  .elections-text { font-size: 3.5vw; }
+  .ballot-icon { width: 20vw; }
+}
+
+@media (max-width: 768px) {
+  .elections-header {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+  .brand-left { font-size: 6vw; margin-bottom: 1vh; }
+  .header-nav { gap: 4vw; flex-wrap: wrap; justify-content: center; }
+  .header-nav a { font-size: 3vw; }
+  
+  .elections-page-title { font-size: 10vw; margin-bottom: 5vh; }
+  .elections-text { 
+    font-size: 4.5vw; 
+    max-width: 95vw;
+    line-height: 1.8;
+  }
+  .ballot-icon { width: 25vw; max-width: 150px; }
+  .ballot-icon-container { margin-top: 5vh; }
+}
+
+@media (max-width: 480px) {
+  .brand-left { font-size: 8vw; }
+  .header-nav a { font-size: 4vw; }
+  .elections-page-title { font-size: 12vw; }
+  .elections-text { font-size: 5.5vw; }
+  .ballot-icon { width: 30vw; max-width: 120px; }
+}
